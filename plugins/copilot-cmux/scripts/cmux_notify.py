@@ -299,6 +299,19 @@ def build_workspace_title(payload: dict) -> str:
     return project_name or session_title or ""
 
 
+# ── Sidebar state machine ──────────────────────────────────────────────
+# Event            │ intent (subtitle)     │ attention  │ running   │ claude-hook
+# ─────────────────┼───────────────────────┼────────────┼───────────┼────────────
+# sessionStart     │ clear                 │ clear      │ SET green │ stop (reset)
+# report_intent    │ SET <intent text>     │ clear      │ SET green │ stop if !started
+# interactive tool │ (unchanged)           │ SET <msg>  │ clear     │ —
+# other tool       │ (unchanged)           │ clear      │ SET green │ —
+# sessionEnd       │ clear                 │ clear      │ clear     │ stop
+# ───────────────────────────────────────────────────────────────────────
+# Notification popup (cmux notify) is sent independently by main() after
+# the handler runs; it must NOT duplicate sidebar status text.
+
+
 def handle_session_start(payload: dict) -> None:
     cmux = resolve_cmux_binary()
     if not cmux:
@@ -354,13 +367,7 @@ def handle_session_end(payload: dict) -> None:
     if not cmux:
         return
 
-    reason = str(payload.get("reason") or "unknown")
-    if reason == "complete":
-        message = "Task finished"
-    else:
-        message = f"Task stopped ({reason})"
-
-    update_workspace_subtitle(cmux, message)
+    clear_workspace_subtitle(cmux)
     clear_attention_status(cmux)
     clear_running_status(cmux)
     signal_session_stop(cmux)
