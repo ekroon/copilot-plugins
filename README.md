@@ -60,6 +60,12 @@ Migrate `AGENTS.md` guidance into GitHub Copilot instruction files.
 
 Path: `skills/migrate-agents-to-copilot-instructions`
 
+### obsidian-assistant
+
+Use the Obsidian desktop CLI for vault-wide queries, app-native workflows, and actions that go beyond the Obsidian MCP tools.
+
+Path: `skills/obsidian-assistant`
+
 ## Migration from the old repositories
 
 Preferred cutover:
